@@ -22,6 +22,7 @@ fd_ext_sources = ('''
     dict_nasreq
     dict_nas_mipv6 
     dict_dcca
+    rt_pref
 '''.split())
 
 foreach s : fd_ext_sources

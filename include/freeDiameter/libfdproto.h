@@ -2206,6 +2206,8 @@ typedef void msg_or_avp;
  * This means that the content of these fields will be overwritten by the daemon so modifying it is useless.
  */
 
+enum { OGS_DIAM_PEER_PREF_RELAY = 0xFFFFFFFF }; /* All other message peer preferences are based on application ID */
+
 /* The following structure represents the header of a message. All data is in host byte order. */
 struct msg_hdr {
 	uint8_t		 msg_version;		/* (READONLY) Version of Diameter: must be DIAMETER_VERSION. */
@@ -2215,6 +2217,7 @@ struct msg_hdr {
 	application_id_t msg_appl;		/* The application issuing this message */
 	uint32_t	 msg_hbhid;		/* The Hop-by-Hop identifier of the message */
 	uint32_t	 msg_eteid;		/* The End-to-End identifier of the message */
+	application_id_t msg_peer_pref;	/* Used to indicate which peer this messages should prefer, value will be an AppId or OGS_DIAM_PEER_PREF_RELAY */
 };
 
 /* The following structure represents the visible content of an AVP. All data is in host byte order. */
