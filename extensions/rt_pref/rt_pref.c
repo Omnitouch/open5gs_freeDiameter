@@ -64,12 +64,6 @@ static int rt_pref(void * cbdata, struct msg ** msg, struct fd_list * candidates
 	struct fd_list * li;
 	struct msg_hdr *pdata = NULL;
 
-	if (pthread_rwlock_wrlock(&rt_pref_lock) != 0)
-	{
-		fd_log_error("%s: locking failed, aborting message", MODULE_NAME);
-		return errno;
-	}
-
 	if (0 != fd_msg_hdr(*msg, &pdata)) {
 		LOG_E("Failed to get message header data from message");
 		return -1;
@@ -80,6 +74,12 @@ static int rt_pref(void * cbdata, struct msg ** msg, struct fd_list * candidates
 		return 0;
 	}
 
+	if (pthread_rwlock_wrlock(&rt_pref_lock) != 0)
+	{
+		fd_log_error("%s: locking failed, aborting message", MODULE_NAME);
+		return errno;
+	}
+
 	for (li = candidates->next; li != candidates; li = li->next) {
 		struct rtd_candidate * cand = (struct rtd_candidate *)li;
 
@@ -88,10 +88,8 @@ static int rt_pref(void * cbdata, struct msg ** msg, struct fd_list * candidates
 		if ((OGS_DIAM_PEER_PREF_RELAY == pdata->msg_peer_pref) &&
 			(peerSupportsRelay(cand->diamid, cand->diamidlen))) {
 			cand->score += FD_SCORE_FINALDEST;
-			LOG_E("incremented cand score because relay: '%s', %d", cand->diamid, cand->score);
 		} else if (peerSupportsAppId(cand->diamid, cand->diamidlen, pdata->msg_peer_pref)) {
 			cand->score += FD_SCORE_FINALDEST;
-			LOG_E("incremented cand score because matching app id(%u): '%s', %d", pdata->msg_peer_pref, cand->diamid, cand->score);
 		}
 	}
 
