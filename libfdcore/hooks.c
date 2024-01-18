@@ -315,7 +315,11 @@ void   fd_hook_call(enum fd_hook_type type, struct msg * msg, struct fd_peer * p
 			}
 
 			/* Now, call this callback */
-			(*h->fd_hook_cb)(type, msg, &peer->p_hdr, other, pmd, h->regdata);
+			if (peer) {
+				(*h->fd_hook_cb)(type, msg, &peer->p_hdr, other, pmd, h->regdata);
+			} else {
+				LOG_E("Tried to call a hook callback for a NULL peer");
+			}
 		}
 	}
 	
