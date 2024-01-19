@@ -173,16 +173,12 @@ int fd_disp_register ( int (*cb)( struct msg **, struct avp *, struct session *,
 			break;
 		case DISP_HOW_AVP_ENUMVAL:
 			new->when.value   = when->value;
-			break;
 		case DISP_HOW_AVP:
 			new->when.avp     = when->avp;
-			break;
 		case DISP_HOW_CC:
 			new->when.command = when->command;
-			break;
 		case DISP_HOW_APPID:
 			new->when.app     = when->app;
-			break;
 	}
 	new->cb = cb;
 	new->opaque = opaque;
