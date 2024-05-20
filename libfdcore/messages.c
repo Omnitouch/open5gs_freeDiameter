@@ -384,18 +384,27 @@ static int fd_msg_send_int( struct msg ** pmsg, void (*anscb)(void *, struct msg
 	DiamId_t diamid;
 
 	/* Save the callback in the message, with the timeout */
+	/* Debug printing to track down issue where we lock up after calling fd_msg_send */
+	LOG_D("fd_msg_anscb_associate before");
 	CHECK_FCT(  fd_msg_anscb_associate( *pmsg, anscb, data, expirecb, timeout )  );
+	LOG_D("fd_msg_anscb_associate after");
 
 	/* If this is a new request, call the HOOK_MESSAGE_LOCAL hook */
 	if ( (fd_msg_hdr(*pmsg, &hdr) == 0)
 	 &&  (hdr->msg_flags & CMD_FLAG_REQUEST)
 	 &&  (fd_msg_source_get(*pmsg, &diamid, NULL) == 0)
 	 &&  (diamid == NULL)) {
+		/* Debug printing to track down issue where we lock up after calling fd_msg_send */
+		LOG_D("fd_hook_call before");
 		fd_hook_call(HOOK_MESSAGE_LOCAL, *pmsg, NULL, NULL, fd_msg_pmdl_get(*pmsg));
+		LOG_D("fd_hook_call after");
 	}
 
 	/* Post the message in the outgoing queue */
+	/* Debug printing to track down issue where we lock up after calling fd_msg_send */
+	LOG_D("fd_fifo_post before");
 	CHECK_FCT( fd_fifo_post(fd_g_outgoing, pmsg) );
+	LOG_D("fd_fifo_post after");
 
 	return 0;
 }
@@ -406,7 +415,12 @@ int fd_msg_send ( struct msg ** pmsg, void (*anscb)(void *, struct msg **), void
 	TRACE_ENTRY("%p %p %p", pmsg, anscb, data);
 	CHECK_PARAMS( pmsg );
 
-	return fd_msg_send_int(pmsg, anscb, data, NULL, NULL);
+	/* Debug printing to track down issue where we lock up after calling fd_msg_send */
+	LOG_D("fd_msg_send_int before");
+	int result = fd_msg_send_int(pmsg, anscb, data, NULL, NULL);
+	LOG_D("fd_msg_send_int after");
+
+	return result;
 }
 
 /* The variation of the same function with a timeout callback */
